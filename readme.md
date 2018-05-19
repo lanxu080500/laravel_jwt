@@ -1,51 +1,258 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+### 一、安装jwt
+1、修改`composer.json`文件,引入jwt
+````
+"require-dev": {
+    ···················
+    ···················
+    "tymon/jwt-auth": "1.0.*@beta"
+},
+````
+2、更新依赖包资源
+````
+composer update
+````
+3、注册jwt的服务提供者和门面,修改config目录里的`app.php`
+````
+# 服务提供者
+'providers' => [
+    ······
+    Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+],
+#门面
+'aliases' => [
+    ······
+    'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class
+],
+````
+4、发布配置文件
+````
+php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\JWTAuthServiceProvider"
+````
+5、生成对称加密的script
+````
+php artisan jwt:secret
+````
+### 二、添加jwt认证的数据源和认证方式
+1、添加数据源
+````  
+<?php
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+namespace App;
 
-## About Laravel
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+class User extends Authenticatable implements JWTSubject
+{
+    ·····
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->id;
+    }
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [
+            'type' => 'jwt'
+        ];
+    }
+}
+````
+2、定义认证方式
+````
+<?php
+/**
+ * Created by PhpStorm.
+ * User: mac
+ * Date: 2018/5/18
+ * Time: 下午6:00
+ */
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb combination of simplicity, elegance, and innovation give you tools you need to build any application with which you are tasked.
+namespace App\Providers;
 
-## Learning Laravel
+use Illuminate\Auth\EloquentUserProvider;
+use Illuminate\Contracts\Auth\Authenticatable as UserContract;
+use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Support\Facades\Hash;
+use Psy\Util\Str;
 
-Laravel has the most extensive and thorough documentation and video tutorial library of any modern web application framework. The [Laravel documentation](https://laravel.com/docs) is thorough, complete, and makes it a breeze to get started learning the framework.
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 900 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+class JwtUserServiceProvider implements UserProvider
+{
+    /**
+     * Retrieve a user by their unique identifier.
+     *
+     * @param  mixed  $identifier
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function retrieveById($identifier)
+    {
+        
+    }
 
-## Laravel Sponsors
+    /**
+     * Retrieve a user by their unique identifier and "remember me" token.
+     *
+     * @param  mixed   $identifier
+     * @param  string  $token
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function retrieveByToken($identifier, $token)
+    {
+        
+    }
 
-We would like to extend our thanks to the following sponsors for helping fund on-going Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](http://patreon.com/taylorotwell):
+    /**
+     * Update the "remember me" token for the given user in storage.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  string  $token
+     * @return void
+     */
+    public function updateRememberToken(Authenticatable $user, $token)
+    {
+        
+    }
 
-- **[Vehikl](http://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Styde](https://styde.net)**
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
+    /**
+     * Retrieve a user by the given credentials.
+     *
+     * @param  array  $credentials
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function retrieveByCredentials(array $credentials)
+    {
+        
+    }
 
-## Contributing
+    /**
+     * Validate a user against the given credentials.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  array  $credentials
+     * @return bool
+     */
+    public function validateCredentials(Authenticatable $user, array $credentials)
+    {
+        
+    }
+}
+````
+3、注册认证方式,修改app/Providers/AuthServiceProvider.php
+````
+public function boot()
+{
+    $this->registerPolicies();
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+    Auth::extend('jwt', function($app, $name, array $config) {
+        // Return an instance of Illuminate\Contracts\Auth\Guard...
+        return new JWTGuard($app['tymon.jwt'],
+            new JwtUserServiceProvider(config('auth.user_model')),
+            $app['request']);
+    });
+}
+````
+4、修改配置文件引入jwt认证,修改config/auth.php
+````
+'guards' => [
+    ·····
+    'jwt' => [
+        'driver' => 'jwt',
+        'provider' => 'jwt',
+    ],
+],
+'providers' => [
+    ······
+    'jwt' => [
+        'driver' => 'eloquent',
+        'model' => \App\User::class,
+    ],
+],
+'user_model' => 'App\User',
+````
+### 三、定义解析token的中间件
+1、生成中间件
+````
+php artisan make:middleware JwtToken
+````
+2、修改中间件
+````
+public function handle($request, Closure $next, $guard = null)
+{
+    if (! $token = Auth::setRequest($request)->getToken()) {
+        Log::error('[Auth][Api] no token in request[' . json_encode($request) . ']');
+        throw new ApiException(1001, 'token未提供', array(), 401);
+    }
+    Log::info('token: ' . $token);
+    try {
+        $payload = AuthUtil::checkOrFail('jwt');
+    } catch (TokenExpiredException $e) {
+        throw new ApiException(1002, 'token失效', array(), 401);
+    } catch (JWTException $e) {
+        throw new ApiException(1003, 'token无效', array(), 401);
+    }
 
-## Security Vulnerabilities
+    if (! $payload) {
+        throw new ApiException(1006, '用户不存在', array(), 404);
+    }
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+    return $next($request);
+}
+````
+3、注册中间件,修改`app/Http/Kernel.php`
+````
+protected $middlewareGroups = [
+    ····
+    'jwt_api' => [
+        'throttle:60,1',
+        'jwt.auth',
+    ],
+];
+protected $routeMiddleware = [
+    ····
+    'jwt.auth' => \App\Http\Middleware\JwtToken::class
+];
+````
+### 四、调试
+1、获取token
+````
+public function login(Request $request)
+{
+    $credentials = $request->only('name', 'password');
+    try {
+        // attempt to verify the credentials and create a token for the user
+        if (! $token = Auth::guard('jwt')->attempt($credentials)) {
+            throw new ApiException(1008, '登录失败');
+        }
+    } catch (JWTException $e) {
+        // something went wrong whilst attempting to encode the token
+        throw new ApiException(1009, 'token创建失败');
+    }
 
-## License
+    $expire = Auth::guard('jwt')->setToken($token)->getPayload()->get('exp');
+    $token = 'Bearer '.$token;
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+    return compact('token', 'expire');
+
+}
+````
+2、解析token获取用户信息
+````
+# 这里路由要使用之前定义的中间件
+# Route::post('/getUserInfo', 'JwtController@getUserInfo')->middleware('jwt_api');
+public function getUserInfo()
+{
+    dd(Auth::user());
+}
+````
