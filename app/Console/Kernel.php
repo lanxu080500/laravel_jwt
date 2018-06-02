@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\JiaData;
+use App\Console\Commands\MakeDate;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,6 +16,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        MakeDate::class,
+        JiaData::class
     ];
 
     /**
