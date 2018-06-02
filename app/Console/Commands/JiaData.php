@@ -38,6 +38,7 @@ class JiaData extends Command
      */
     public function handle()
     {
+        //免费订单
         $res = DB::table('line_orders_free_copy')->orderBy('created_at', 'asc')->offset(40000)->limit(10000)->get();
         $res = json_encode($res);
         $res = json_decode($res, true);
@@ -53,6 +54,7 @@ class JiaData extends Command
                 }
             }
         }
+        //不免费订单
         //$res = DB::table('line_orders')->where('shop_id', '>', 1)->offset(40000)->limit(400)->get();
         //$res = json_encode($res);
         //$res = json_decode($res, true);
@@ -65,6 +67,22 @@ class JiaData extends Command
         //            $this->info($id);
         //        } else {
         //            $this->info("error");
+        //        }
+        //    }
+        //}
+        //用户
+        //$res = DB::table('customers_copy')->orderBy('created_at', 'asc')->offset(90000)->limit(31000)->get();
+        //$res = json_encode($res);
+        //$res = json_decode($res, true);
+        //foreach ($res as $user) {
+        //    $id = $user['id'];
+        //    unset($user['id']);
+        //    $r = DB::table('customers_copy_copy')->insert($user);
+        //    if ($r) {
+        //        if ($r) {
+        //            $this->info($id);
+        //        } else {
+        //            $this->error("error");
         //        }
         //    }
         //}

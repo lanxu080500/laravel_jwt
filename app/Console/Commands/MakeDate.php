@@ -40,46 +40,61 @@ class MakeDate extends Command
      */
     public function handle()
     {
-        //$date = $this->ask('input the date');
-        //$start = $this->ask('input the start');
-        //$end = $this->ask('input the end');
-        //$this->info("$date $start $end");
+        $date = $this->ask('input the date');
+        $start = $this->ask('input the start');
+        $end = $this->ask('input the end');
+        $this->info("$date $start $end");
         $is_run = $this->ask('are you sure run it');
         if ($is_run) {
-            DB::transaction(function (){
+            DB::transaction(function () use ($start, $end, $date) {
                 $res = DB::table('line_orders_free_copy')->where('status', 1)->get();
                 $res = json_encode($res);
                 $res = json_decode($res, true);
                 foreach ($res as $user) {
-                    //$hour = sprintf("%02d", mt_rand(0, 23));
-                    //$fen = sprintf("%02d", mt_rand(0, 59));
-                    //$miao = sprintf("%02d", mt_rand(0, 40));
-                    //$jiamiao = sprintf("%02d", $miao + 7);
-                    //$created_time = substr($user['created_at'], '0', '11') . $hour . ':' . $fen . ':' . $miao;
-                    //$start_time = substr($user['created_at'], '0', '11') . $hour . ':' . $fen . ':' . $jiamiao;
-                    //$end_time = Carbon::parse($start_time)->addHours(12);
-                    //$r = DB::table('line_orders_free_copy')
-                    //    ->where('id', $user['id'])
-                    //    ->update(
-                    //        [
-                    //            'created_at' => $created_time,
-                    //            'end_at' => $end_time,
-                    //            'start_at' => $start_time,
-                    //        ]
-                    //    );
-                    $array = [1, 2, 3, 4, 5];
-                    $pwd = $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)];
+                    //修改start_at end_at created_at
+                    $hour = sprintf("%02d", mt_rand(0, 23));
+                    $fen = sprintf("%02d", mt_rand(0, 59));
+                    $miao = sprintf("%02d", mt_rand(0, 40));
+                    $jiamiao = sprintf("%02d", $miao + 7);
+                    $created_time = substr($user['created_at'], '0', '11') . $hour . ':' . $fen . ':' . $miao;
+                    $start_time = substr($user['created_at'], '0', '11') . $hour . ':' . $fen . ':' . $jiamiao;
+                    $end_time = Carbon::parse($start_time)->addHours(12);
                     $r = DB::table('line_orders_free_copy')
                         ->where('id', $user['id'])
-                        ->update(['password' => $pwd]);
-                    //    );
-                    if ($r) {
-                        $this->info("$pwd");
-                    } else {
-                        $this->error("error");
-                    }
+                        ->update(
+                            [
+                                'created_at' => $created_time,
+                                'end_at' => $end_time,
+                                'start_at' => $start_time,
+                            ]
+                        );
+
+                    //修改密码
+                    //$array = [1, 2, 3, 4, 5];
+                    //$pwd = $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)] . $array[mt_rand(0, 4)];
+                    //$r = DB::table('line_orders_free_copy')
+                    //    ->where('id', $user['id'])
+                    //    ->update(['password' => $pwd]);
+                    ////    );
+                    //if ($r) {
+                    //    $this->info("$pwd");
+                    //} else {
+                    //    $this->error("error");
+                    //}
                 }
 
+                //用户
+                //$res = DB::table('customers')->offset($start)->limit($end)->get();
+                //$res = json_encode($res);
+                //$res = json_decode($res, true);
+                //$z = 1;
+                //foreach ($res as $re) {
+                //    $time = $date . ' ' . substr($re['created_at'], 11);
+                //    $re['created_at'] = $time;
+                //    DB::table('customers_copy')->insert($re);
+                //    $this->info($z);
+                //    $z++;
+                //}
             });
         }
     }
